@@ -10,13 +10,14 @@ const products = [
 ]
 
 const server = http.createServer((req, res) => {
-    console.log(req.url); 
     res.setHeader("Content-Type", "application/json");
+    console.log(req.method);
     if (req.url == '/users') {
         res.end(JSON.stringify(users));
     } else if (req.url == '/products') {
         res.end(JSON.stringify(products));
     } else {
+        res.setHeader("Content-Type", "text/plain");
         res.end("Error 404"); 
     }
 })

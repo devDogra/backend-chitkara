@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios@1.1.2/dist/axios.min.js"></script>
+
+</head>
+<body>
+    <h1>Todo List</h1>
+    <input placeholder="todo">
+    <button>Add Todo</button>
+
+    <ul id="todo-list">
+
+    </ul>
+
+    <script>
+        const todoList = document.querySelector("#todo-list"); 
+        const url = 'http://localhost:3000/todos'; 
+
+        axios.get(url)
+            .then(response => {
+                const todos = response.data; 
+                for (let todo of todos) {
+                    const li = document.createElement("li"); 
+                    li.innerText = todo.name; 
+                    todoList.append(li); 
+                }
+            })
+    </script>
+</body>
+</html>
