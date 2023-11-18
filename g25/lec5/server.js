@@ -3,6 +3,8 @@ const app = express();
 const todos = require("./todos.json"); 
 const fs = require('fs'); 
 
+app.set('view engine', 'hbs'); 
+app.set('views', './views'); 
 app.use(express.json());
 
 app.get('/todos', (req, res) => {
@@ -14,10 +16,12 @@ app.post('/todos', (req, res) => {
     fs.writeFileSync('./todos.json', JSON.stringify(todos));
     res.send("Todo added succesfully"); 
 })
-app.get('/', (req, res) => {
-    res.sendFile(__dirname + "/public/index.html")
-})
 
+app.get('/', (req, res) => {
+    res.render('index', {
+        todos
+    })
+})
 
 app.listen(3000, () => console.log(
     "http://localhost:3000"
