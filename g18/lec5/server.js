@@ -4,7 +4,7 @@ const todos = require('./todos.json');
 const app = express(); 
 
 app.set('view engine', 'hbs'); 
-app.set('views', './views');
+app.set('views', './views'); 
 
 app.use(express.json());
 
@@ -20,7 +20,7 @@ app.post('/todos', (req, res) => {
 
 
 app.get('/', (req, res) => {
-    res.render('index', { 
+    res.render('index', {
         todos
     })
 })

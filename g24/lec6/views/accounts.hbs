@@ -6,13 +6,10 @@
     <title>Document</title>
 </head>
 <body>
-    <h1>Todo List</h1>
-    <input placeholder="todo">
-    <button>Add Todo</button>
-
-    <ul id="todo-list">
-        {{#each todos}}
-            <li>{{ this.name }}</li>
+    <h1>Accounts</h1>
+    <ul>
+        {{#each usernames}}
+            <li>{{this}}</li>
         {{/each}}
     </ul>
 </body>

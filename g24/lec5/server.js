@@ -3,6 +3,9 @@ const app = express();
 const todos = require("./todos.json");
 const fs = require('fs'); 
 
+app.set('view engine', 'hbs'); 
+app.set('views', './views');
+
 app.use(express.json());
 
 app.get('/todos', (req, res) => {
@@ -18,10 +21,13 @@ app.post('/todos', (req, res) => {
 })
 
 app.get('/', (req, res) => {
-    console.log(__dirname); 
-    res.sendFile(__dirname + "/index.html");
+    res.render('index', {
+        todos
+    })  
 })
 
 app.listen(3000, () => console.log(
     "http://localhost:3000"
 ))
+
+
