@@ -2,6 +2,8 @@ const express = require('express');
 const app = express(); 
 
 app.use(express.json());
+app.use(express.urlencoded()); 
+
 const users = [];
 
 app.post('/register', (req, res) => {
@@ -20,16 +22,49 @@ app.post('/register', (req, res) => {
 
 })
 
+app.post('/login', (req, res) => {
+    const loginData = req.body; 
+    const account = users.find(
+        u => u.username == loginData.username
+    );
+    if (!account) {
+        res.send("No such account"); 
+        return;
+    }
+    // Account found
+    if (account.password != loginData.password) {
+        res.send("Incorrect password"); 
+        return; 
+    }
+    res.send("Login succesful"); 
+
+})
+
 app.get('/accounts', (req, res) => {
     // /accounts?n=10&sort=true
     const n = req.query.n
     const sort = req.query.sort; 
-    console.log(n, sort); 
-    const usernames = users.map(user => user.username);
+    let usernames = users.map(user => user.username);
+    if (n) {
+        usernames = usernames.slice(0, n);
+    }
+    if (sort) {
+        usernames.sort(); 
+    }
     res.send(usernames); 
 })
+
+app.get('/register', (req, res) => {
+    res.sendFile(__dirname + '/views/register.html')
+})
+app.get('/login', (req, res) => {
+    res.sendFile(__dirname + '/views/login.html')
+})
+
+
 
 app.listen(3000, () => {
     console.log("http://localhost:3000"); 
 })
+
 
