@@ -18,3 +18,20 @@ addBtn.onclick = async () => {
     }
 
 }
+
+getBtn.onclick = async () => {
+    // Fetch Notes
+    const response = await axios.get(url);
+    const notes = response.data
+
+    // Display Notes
+    for (let note of notes) {
+        const noteHTML = `
+            <li id=${note._id}>
+                <p>${note.content}</p>
+                <button class="del">Delete</button>
+            </li>
+        `
+        ul.innerHTML += noteHTML; 
+    }
+}
