@@ -21,3 +21,33 @@ createBtn.addEventListener("click", async (event) => {
     }
 
 })
+
+getBtn.addEventListener("click", async (event) => {
+    const response = await axios.get(url);
+    const notes = response.data; 
+
+    ul.replaceChildren();
+    for (let note of notes) {
+        const li = `
+            <li id=${note._id}>
+                <p>${note.content}</p>    
+                <button class="del">Delete</button>
+            </li>
+        `
+        ul.innerHTML = li; 
+    }
+    console.log(response); 
+})
+
+
+document.addEventListener("click", async e => {
+    const clickedElement = e.target; 
+    if (clickedElement.matches(".del")) {
+        const btn = e.target; 
+        const li = btn.parentElement; 
+        const id = li.id; 
+
+        await axios.delete(`http://localhost:3000/notes/${id}`)
+
+    }
+})
