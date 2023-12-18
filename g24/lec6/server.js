@@ -27,12 +27,7 @@ app.post('/login', (req, res) => {
         res.send("Username and password are required"); 
         return; 
     }
-    [
-        { username: "Dev", password: "Hello" }, 
-        { username: "Dev2", password: "Hello2" }, 
-        { username: "Dev3", password: "Hello3" }, 
-    ]
-    
+
     for (let i = 0; i < users.length; i++) {
         if (users[i].username == user.username) {
             if (users[i].password == user.password){
