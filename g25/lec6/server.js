@@ -1,9 +1,25 @@
 const express = require('express'); 
+const mongoose = require('mongoose'); 
+const User = require('./models/User.js');
+const bcrypt = require('bcrypt'); 
+
 const app = express(); 
 app.use(express.json()); 
 app.use(express.urlencoded()); 
-const users = [];
-app.post('/register', (req, res) => {
+// const users = [];
+
+mongoose.connect('mongodb://127.0.0.1:27017/AuthG25');
+
+// plaintext pwd                  hashed pwd/encrypted pwd
+// rohit ------encrypt-----> fk2398749274982r34h4ri34
+
+// rohit ----> abcdefg 
+// abcdefg ----> tt546y
+// tt546y -----> uyuyuy
+
+
+
+app.post('/register', async (req, res) => {
     const user = req.body; 
     if (!user.password || !user.username) {
         res.send("Username and password are required"); 
@@ -11,19 +27,35 @@ app.post('/register', (req, res) => {
     if (user.password.length < 4) {
         res.send("Password length must be >= 4"); 
     }
-    users.push(user); 
-    res.send("Registration successful"); 
+    // users.push(user); 
+    const newUser = new User(user);
+    const saltRounds = 10;
+    const hashedPwd = await bcrypt.hash(newUser.password, saltRounds)
+    newUser.password = hashedPwd; 
+    try {
+        await newUser.save();
+        res.send("Registration successful"); 
+    } catch(err) {
+        res.status(400).send("Registration failed");
+    }
 })
-app.post('/login', (req, res) => {
+
+app.post('/login', async (req, res) => {
     const loginData = req.body; 
-    const userTryingToLogin = users.find(
-        u => u.username == loginData.username
-    );
+
+    const userTryingToLogin = (await User.find().where('username').equals(loginData.username))[0];
+
+    // nandini
+    // dwjkejghkwejbkejwhrke3jhrtkrejh
+
     if (!userTryingToLogin) {
         res.send("No such account"); 
         return; 
     }
-    if (userTryingToLogin.password != loginData.password){
+
+    const matches = await bcrypt.compare(loginData.password, userTryingToLogin.password);
+
+    if (!matches){
         res.send("Incorrect password"); 
         return; 
     }

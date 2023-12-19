@@ -1,38 +1,57 @@
-const express = require('express'); 
+const express = require('express');
+const mongoose = require('mongoose');
+const User = require('./models/User.js');  
+const bcrypt = require('bcrypt'); 
 const app = express(); 
+
+mongoose.connect('mongodb://127.0.0.1:27017/AuthG18')
 
 app.use(express.json());
 app.use(express.urlencoded()); 
 
-const users = [];
+// pwd
+// mehak ------encrypt ---> sqwhfkjwehkrhw329847i23bjwh
 
-app.post('/register', (req, res) => {
+// const users = [];
+
+app.post('/register', async (req, res) => {
     const user = req.body; 
     if (!user.password || !user.username) {
         res.send("Username and password are required"); 
         return;     
     }
-
     if (user.password.length < 4) {
         res.send("Password length must be >= 4");
         return; 
     }
-    users.push(user); 
-    res.send("Registration successful"); 
+
+    const newUser = new User(user);
+    const saltRounds = 10;
+
+
+    const hashedPwd = await bcrypt.hash(newUser.password, saltRounds);
+    newUser.password = hashedPwd; 
+
+    try {
+        await newUser.save();
+        res.send("Registration successful"); 
+    } catch(err) {
+        res.send("Couldn't register account");
+    }
 
 })
 
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
     const loginData = req.body; 
-    const account = users.find(
-        u => u.username == loginData.username
-    );
+    const account = (await User.find().where('username').equals(loginData.username))[0];
+
     if (!account) {
         res.send("No such account"); 
         return;
     }
     // Account found
-    if (account.password != loginData.password) {
+    const match = await bcrypt.compare(loginData.password, account.password)
+    if (!match) {
         res.send("Incorrect password"); 
         return; 
     }
