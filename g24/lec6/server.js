@@ -1,14 +1,33 @@
 const express = require('express'); 
+const cookieParser = require("cookie-parser");
+const mongoose = require('mongoose');
+const bcrypt = require('bcrypt');
+const User = require('./models/User.js');
+
+mongoose.connect("mongodb://127.0.0.1:27017/AuthG24")
+
 const app = express(); 
 
-const users = [];
+app.use(cookieParser());
 app.use(express.json()); 
 app.use(express.urlencoded()); 
 
 app.set('view engine', 'hbs'); 
 app.set('views', './views')
 
-app.post('/register', (req, res) => {
+app.get('/shop', (req, res) => {
+    const visited = req.cookies.visited; 
+
+    if (visited) {
+        res.send("Item | Rs. 100")
+    } else {
+        res.cookie('visited', true);
+        res.send("Item | Rs. 80 (20% discount");
+    }
+   
+})
+
+app.post('/register', async (req, res) => {
     const user = req.body; 
     if (!user.username || !user.password) {
         res.send("Username and password are required"); 
@@ -18,25 +37,29 @@ app.post('/register', (req, res) => {
         res.send("Password length must be >= 4");
         return; 
     }
-    users.push(user); 
+    // users.push(user); 
+    const newUser = new User(user);
+    await newUser.save();
     res.send("Registration succesful"); 
 })
-app.post('/login', (req, res) => {
+app.post('/login', async (req, res) => {
     const user = req.body; 
     if (!user.username || !user.password) {
         res.send("Username and password are required"); 
         return; 
     }
 
-    for (let i = 0; i < users.length; i++) {
-        if (users[i].username == user.username) {
-            if (users[i].password == user.password){
-                res.send("Login succesful"); 
-                return; 
-            }
-        }
+    const account =  await User.findOne({
+        username: user.username
+    })
+
+    if (account.password == user.password) {
+        res.send("Login succesful");
+    } else {
+        res.send("Incorrect password");
     }
-    res.send("Invalid login"); 
+    // const account = await User.findOne().where('username').equals(user.username);
+    // res.send("Invalid login"); 
 })
 app.get('/register', (req, res) => {
     res.render('register'); 
