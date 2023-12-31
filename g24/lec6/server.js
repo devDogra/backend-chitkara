@@ -8,7 +8,10 @@ mongoose.connect("mongodb://127.0.0.1:27017/AuthG24")
 const app = express(); 
 
 app.use(session({
-    secret: 'this is my secret'
+    secret: 'this is my secret',
+    cookie: {
+        maxAge: 1000*60*60*24*7
+    }
 }))
 app.use(cookieParser());
 app.use(express.json()); 

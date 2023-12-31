@@ -2,17 +2,23 @@ const express = require('express');
 const mongoose = require('mongoose');
 const User = require('./models/User.js');  
 const bcrypt = require('bcrypt'); 
+const cookieParser = require('cookie-parser');
+const session = require('express-session'); 
+
 const app = express(); 
 
 mongoose.connect('mongodb://127.0.0.1:27017/AuthG18')
 
 app.use(express.json());
 app.use(express.urlencoded()); 
+app.use(cookieParser());
 
-// pwd
-// mehak ------encrypt ---> sqwhfkjwehkrhw329847i23bjwh
-
-// const users = [];
+app.use(session({
+    secret: 'this is my secret',
+    cookie: {
+        maxAge: 1000*15// 7days
+    }
+}))
 
 app.post('/register', async (req, res) => {
     const user = req.body; 
@@ -41,6 +47,36 @@ app.post('/register', async (req, res) => {
 
 })
 
+// Cookies
+app.get('/shop', (req, res) => {
+    const discount = "Item | Rs. 100 | 20% off";
+    const noDiscount = "Item | Rs. 100";
+
+    const visited = req.cookies.visited; 
+
+    if (visited) {
+        res.send(noDiscount);
+    } else {
+        res.cookie('visited', true);
+        res.send(discount);
+    }
+})
+
+app.get('/logout', (req, res) => {
+    req.session.loggedIn = false;
+    res.send("Logged out succesfully");
+})
+
+app.get('/protected', (req, res) => {
+    const loggedIn = req.session.loggedIn    
+    if (loggedIn) {
+        res.send("Secret information");
+    } else {
+        res.redirect("/login");
+    }
+})
+
+
 app.post('/login', async (req, res) => {
     const loginData = req.body; 
     const account = (await User.find().where('username').equals(loginData.username))[0];
@@ -55,6 +91,10 @@ app.post('/login', async (req, res) => {
         res.send("Incorrect password"); 
         return; 
     }
+
+    req.session.user = account;
+    req.session.loggedIn = true; 
+    // session id =====cookie=====> user
     res.send("Login succesful"); 
 
 })
